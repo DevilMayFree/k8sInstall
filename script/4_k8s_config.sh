@@ -3,22 +3,17 @@
 echo "kubernetes各组件的认证配置"
 echo "生成各个组件的kubeconfigs，包括controller-manager，kubelet，kube-proxy，scheduler，以及admin用户"
 
-cd ~/pki
-
 # 加载解析的配置文件内容
 source "./parse.sh"
 
 # Exceute
 parse_info
 
+cd /root/pki
+
 echo "1、kubelet"
 
-# master节点
-MASTERS=${master_name_arr[@]}
-# worker节点
-WORKERS=${worker_name_arr[@]}
-
-for instance in ${WORKERS}; do
+for instance in ${worker_name_arr[@]}; do
   kubectl config set-cluster kubernetes \
     --certificate-authority=ca.pem \
     --embed-certs=true \
@@ -128,12 +123,12 @@ kubectl config use-context default --kubeconfig=admin.kubeconfig
 
 echo "6、分发配置文件"
 
-for instance in ${WORKERS}; do
-    scp ${instance}.kubeconfig kube-proxy.kubeconfig ${instance}:~/
+for instance in ${worker_name_arr[@]}; do
+    scp ${instance}.kubeconfig kube-proxy.kubeconfig root@${instance}:~/
 done
 
-for instance in ${MASTERS}; do
-    scp admin.kubeconfig kube-controller-manager.kubeconfig kube-scheduler.kubeconfig ${instance}:~/
+for instance in ${master_name_arr[@]}; do
+    scp admin.kubeconfig kube-controller-manager.kubeconfig kube-scheduler.kubeconfig root@${instance}:~/
 done
 
 

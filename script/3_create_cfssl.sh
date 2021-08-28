@@ -115,7 +115,7 @@ for ((i=0;i<${#worker_name_arr[@]};i++)); do
 echo "" ${worker_name_arr[$i]}
 cat > ${worker_name_arr[$i]}-csr.json <<-'EOF'
 {
-  "CN": "system:node:${WORKERS[$i]}",
+  "CN": "system:node:${worker_name_arr[$i]}",
   "key": {
     "algo": "rsa",
     "size": 2048
