@@ -15,7 +15,7 @@ for instance in ${master_ip_arr[@]}; do
 done
 
 for instance in ${worker_name_arr[@]}; do
-    ssh root@${instance} "$(< './k8s_worker_inner.sh')"
+    ssh root@${instance} "bash -s" < k8s_worker_inner.sh ${insert}
 done
 
 echo "success!" && exit 0

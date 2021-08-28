@@ -103,9 +103,6 @@ echo "3、配置nginx-proxy"
 # nginx配置文件
 mkdir -p /etc/nginx
 
-# master ip列表
-MASTER_IPS=${master_ip_arr[@]}
-
 # 执行前请先copy一份，并修改好upstream的 'server' 部分配置
 cat <<EOF > /etc/nginx/nginx.conf
 error_log stderr notice;
@@ -123,7 +120,7 @@ events {
 stream {
   upstream kube_apiserver {
     least_conn;
-    ${insert}
+    ${1}
   }
 
   server {

@@ -19,7 +19,7 @@ mv ca.pem ca-key.pem kubernetes-key.pem kubernetes.pem \
 # 本机内网ip
 IP=$(hostname -I|awk '{print $1}')
 # apiserver实例数
-APISERVER_COUNT=${#master_name_arr[@]}
+# $1
 
 # 创建 apiserver service
 cat <<EOF > /etc/systemd/system/kube-apiserver.service
@@ -31,7 +31,7 @@ Documentation=https://github.com/kubernetes/kubernetes
 ExecStart=/usr/local/bin/kube-apiserver \\
   --advertise-address=${IP} \\
   --allow-privileged=true \\
-  --apiserver-count=${APISERVER_COUNT} \\
+  --apiserver-count=$1 \\
   --audit-log-maxage=30 \\
   --audit-log-maxbackup=3 \\
   --audit-log-maxsize=100 \\
@@ -43,7 +43,7 @@ ExecStart=/usr/local/bin/kube-apiserver \\
   --etcd-cafile=/etc/kubernetes/ssl/ca.pem \\
   --etcd-certfile=/etc/kubernetes/ssl/kubernetes.pem \\
   --etcd-keyfile=/etc/kubernetes/ssl/kubernetes-key.pem \\
-  --etcd-servers=${etcd_servers} \\
+  --etcd-servers=$2 \\
   --event-ttl=1h \\
   --kubelet-certificate-authority=/etc/kubernetes/ssl/ca.pem \\
   --kubelet-client-certificate=/etc/kubernetes/ssl/kubernetes.pem \\

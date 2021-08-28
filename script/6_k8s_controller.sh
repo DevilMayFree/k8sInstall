@@ -17,9 +17,14 @@ for ((i=0; i<${#etcd_ip_arr[@]}; ++i)); do
 done
 etcd_servers="${etcd_servers::-1}"
 
+# apiserver实例数
+apiserver_count=${#master_name_arr[@]}
+echo "apiserver实例数:"
+echo ${apiserver_count}
+
 # master节点
 for instance in ${master_name_arr[@]}; do
-    ssh root@${instance} "$(< './k8s_controller_inner.sh')"
+    ssh root@${instance} "bash -s" < k8s_controller_inner.sh ${apiserver_count} ${etcd_servers}
 done
 
 echo "success!" && exit 0
