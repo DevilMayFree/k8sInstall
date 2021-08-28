@@ -314,7 +314,8 @@ cfssl gencert \
 echo "10、分发客户端、服务端证书"
 
 for instance in ${worker_name_arr[@]}; do
-  scp ca.pem ${instance}-key.pem ${instance}.pem root@${instance}:~/
+  scp ca.pem kubernetes-key.pem kubernetes.pem \
+   ${instance}-key.pem ${instance}.pem root@${instance}:~/
 done
 
 

@@ -8,10 +8,6 @@ source "./parse.sh"
 # Exceute
 parse_info
 
-# local
-ETCD_NAME=$(hostname -s)
-ETCD_IP=$(hostname -I|awk '{print $1}')
-
 # 拼接集群信息
 initial_cluster=""
 for ((i=0; i<${#etcd_name_arr[@]}; ++i)); do
@@ -22,7 +18,7 @@ done
 initial_cluster="${initial_cluster::-1}"
 
 for instance in ${etcd_name_arr[@]}; do
-    ssh root@${instance} "$(< './etcd_cluster_inner.sh')"
+    ssh root@${instance} "bash -s" < etcd_cluster_inner.sh ${initial_cluster}
 done
 
 echo "集群服务设置完成"
