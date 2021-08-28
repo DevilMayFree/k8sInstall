@@ -11,22 +11,22 @@ parse_info
 # apiserver的service ip地址（一般是svc网段的第一个ip）
 KUBERNETES_SVC_IP="10.233.0.1"
 # 所有的master内网ip，逗号分隔（云环境可以加上master公网ip以便支持公网ip访问）
-MASTER_IPS=${master_ip_arr[@]}
+# MASTER_IPS=${master_ip_arr[@]}
 # worker节点
-WORKERS=${worker_name_arr[@]}
-WORKER_IPS=${worker_ip_arr[@]}
+# WORKERS=${worker_name_arr[@]}
+# WORKER_IPS=${worker_ip_arr[@]}
 
 
-cd ~/component/cfssl
-cfssl_file="~/component/cfssl/cfssl"
-cfssljson_file="~/component/cfssl/cfssljson"
+cd /root/component/cfssl
+cfssl_file="/root/component/cfssl/cfssl"
+cfssljson_file="/root/component/cfssl/cfssljson"
 
 if [[ ! -f "${cfssl_file}" ]]; then
 	echo "cannot not find cfssl!" && exit 1
 fi
 
-if [[ -f "${cfssljson_file}" ]]; then
-	echo "cannot not find cfssljson!" && exit 1	
+if [[ ! -f "${cfssljson_file}" ]]; then
+	echo "cannot not find cfssljson!" && exit 1
 fi
 
 mv ${cfssl_file} /usr/local/bin
@@ -37,7 +37,7 @@ chmod +x /usr/local/bin/cfssl /usr/local/bin/cfssljson
 echo "cfssl version:"
 cfssl version
 
-mkdir ~/pki && cd ~/pki
+mkdir /root/pki && cd /root/pki
 
 echo "1、根证书创建"
 
@@ -111,8 +111,9 @@ cfssl gencert \
 
 echo "3、kubelet客户端证书"
 
-for ((i=0;i<${#WORKERS[@]};i++)); do
-cat > ${WORKERS[$i]}-csr.json <<-'EOF'
+for ((i=0;i<${#worker_name_arr[@]};i++)); do
+echo "" ${worker_name_arr[$i]}
+cat > ${worker_name_arr[$i]}-csr.json <<-'EOF'
 {
   "CN": "system:node:${WORKERS[$i]}",
   "key": {
@@ -134,9 +135,9 @@ cfssl gencert \
   -ca=ca.pem \
   -ca-key=ca-key.pem \
   -config=ca-config.json \
-  -hostname=${WORKERS[$i]},${WORKER_IPS[$i]} \
+  -hostname=${worker_name_arr[$i]},${worker_ip_arr[$i]} \
   -profile=kubernetes \
-  ${WORKERS[$i]}-csr.json | cfssljson -bare ${WORKERS[$i]}
+  ${worker_name_arr[$i]}-csr.json | cfssljson -bare ${worker_name_arr[$i]}
 done
 
 echo "4、kube-controller-manager客户端证书"
@@ -248,7 +249,7 @@ cfssl gencert \
   -ca=ca.pem \
   -ca-key=ca-key.pem \
   -config=ca-config.json \
-  -hostname=${KUBERNETES_SVC_IP},${MASTER_IPS},127.0.0.1,kubernetes,kubernetes.default,kubernetes.default.svc,kubernetes.default.svc.cluster,kubernetes.svc.cluster.local \
+  -hostname=${KUBERNETES_SVC_IP},${master_ip_arr},127.0.0.1,kubernetes,kubernetes.default,kubernetes.default.svc,kubernetes.default.svc.cluster,kubernetes.svc.cluster.local \
   -profile=kubernetes \
   kubernetes-csr.json | cfssljson -bare kubernetes
 
@@ -312,14 +313,14 @@ cfssl gencert \
 
 echo "10、分发客户端、服务端证书"
 
-for instance in ${WORKERS}; do
+for instance in ${worker_name_arr[@]}; do
   scp ca.pem ${instance}-key.pem ${instance}.pem root@${instance}:~/
 done
 
 
 OIFS=$IFS
 IFS=','
-for instance in ${MASTER_IPS}; do
+for instance in ${master_ip_arr[@]}; do
   scp ca.pem ca-key.pem kubernetes-key.pem kubernetes.pem \
     service-account-key.pem service-account.pem proxy-client.pem proxy-client-key.pem root@${instance}:~/
 done

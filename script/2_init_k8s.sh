@@ -34,7 +34,6 @@ done
 cd ~/component/etcd
 chmod +x etcd*
 
-for remote_ip in ${etcd_arr[@]}; do
+for remote_ip in ${etcd_ip_arr[@]}; do
   scp etcd etcdctl root@${remote_ip}:/usr/local/bin/
 done
-
