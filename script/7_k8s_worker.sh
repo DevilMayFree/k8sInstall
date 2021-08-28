@@ -9,11 +9,13 @@ source "./parse.sh"
 # Exceute
 parse_info
 
-# worker节点
-WORKERS=${worker_name_arr[@]}
+insert=""
+for instance in ${master_ip_arr[@]}; do
+    insert="${insert}server ${instance}:6443; "
+done
 
-for instance in ${WORKERS}; do
-    ssh root@${instance} "$(< './7_k8s_worker_inner.sh')"
+for instance in ${worker_name_arr[@]}; do
+    ssh root@${instance} "$(< './k8s_worker_inner.sh')"
 done
 
 echo "success!" && exit 0

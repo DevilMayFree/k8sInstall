@@ -12,50 +12,27 @@ parse_info
 ETCD_NAME=$(hostname -s)
 ETCD_IP=$(hostname -I|awk '{print $1}')
 
-ETCD_NAMES=${etcd_name_arr[@]}
-ETCD_IPS=${etcd_ip_arr[@]}
+# 拼接集群信息
+initial_cluster=""
+for ((i=0; i<${#etcd_name_arr[@]}; ++i)); do
+    etcd_ip=${etcd_ip_arr[$i]}
+    etcd_name=${etcd_name_arr[i]}
+    initial_cluster="${initial_cluster}${etcd_name}=https://"${etcd_ip}":2380,"
+done
+initial_cluster="${initial_cluster::-1}"
 
-cd ~
-mkdir -p /etc/etcd /var/lib/etcd
-chmod 700 /var/lib/etcd
-cp ca.pem kubernetes-key.pem kubernetes.pem /etc/etcd/
+for instance in ${etcd_name_arr[@]}; do
+    ssh root@${instance} "$(< './etcd_cluster_inner.sh')"
+done
 
-cat <<EOF > /etc/systemd/system/etcd.service
-[Unit]
-Description=etcd
-Documentation=https://github.com/coreos
-
-[Service]
-Type=notify
-ExecStart=/usr/local/bin/etcd \\
-  --name ${ETCD_NAME} \\
-  --cert-file=/etc/etcd/kubernetes.pem \\
-  --key-file=/etc/etcd/kubernetes-key.pem \\
-  --peer-cert-file=/etc/etcd/kubernetes.pem \\
-  --peer-key-file=/etc/etcd/kubernetes-key.pem \\
-  --trusted-ca-file=/etc/etcd/ca.pem \\
-  --peer-trusted-ca-file=/etc/etcd/ca.pem \\
-  --peer-client-cert-auth \\
-  --client-cert-auth \\
-  --initial-advertise-peer-urls https://${ETCD_IP}:2380 \\
-  --listen-peer-urls https://${ETCD_IP}:2380 \\
-  --listen-client-urls https://${ETCD_IP}:2379,https://127.0.0.1:2379 \\
-  --advertise-client-urls https://${ETCD_IP}:2379 \\
-  --initial-cluster-token etcd-cluster-0 \\
-  --initial-cluster ${ETCD_NAMES[0]}=https://${ETCD_IPS[0]}:2380,${ETCD_NAMES[1]}=https://${ETCD_IPS[1]}:2380,${ETCD_NAMES[2]}=https://${ETCD_IPS[2]}:2380 \\
-  --initial-cluster-state new \\
-  --data-dir=/var/lib/etcd
-Restart=on-failure
-RestartSec=5
-
-[Install]
-WantedBy=multi-user.target
-EOF
+echo "集群服务设置完成"
 
 # 启动etcd集群
-systemctl daemon-reload && systemctl enable etcd && systemctl restart etcd
+for instance in ${etcd_name_arr[@]}; do
+    ssh root@${instance} "systemctl daemon-reload && systemctl enable etcd && systemctl restart etcd"
+done
 
-# 验证etcd集群
+echo "验证etcd集群"
 ETCDCTL_API=3 etcdctl member list \
   --endpoints=https://127.0.0.1:2379 \
   --cacert=/etc/etcd/ca.pem \

@@ -7,7 +7,7 @@ echo "1、配置 API Server"
 # 创建kubernetes必要目录
 mkdir -p /etc/kubernetes/ssl
 
-cd ~
+cd /root
 
 # 准备证书文件
 mv ca.pem ca-key.pem kubernetes-key.pem kubernetes.pem \
@@ -20,8 +20,6 @@ mv ca.pem ca-key.pem kubernetes-key.pem kubernetes.pem \
 IP=$(hostname -I|awk '{print $1}')
 # apiserver实例数
 APISERVER_COUNT=${#master_name_arr[@]}
-# etcd节点
-ETCD_ENDPOINTS=${etcd_ip_arr[@]}
 
 # 创建 apiserver service
 cat <<EOF > /etc/systemd/system/kube-apiserver.service
@@ -45,7 +43,7 @@ ExecStart=/usr/local/bin/kube-apiserver \\
   --etcd-cafile=/etc/kubernetes/ssl/ca.pem \\
   --etcd-certfile=/etc/kubernetes/ssl/kubernetes.pem \\
   --etcd-keyfile=/etc/kubernetes/ssl/kubernetes-key.pem \\
-  --etcd-servers=https://${ETCD_ENDPOINTS[0]}:2379,https://${ETCD_ENDPOINTS[1]}:2379,https://${ETCD_ENDPOINTS[2]}:2379 \\
+  --etcd-servers=${etcd_servers} \\
   --event-ttl=1h \\
   --kubelet-certificate-authority=/etc/kubernetes/ssl/ca.pem \\
   --kubelet-client-certificate=/etc/kubernetes/ssl/kubernetes.pem \\
@@ -152,9 +150,9 @@ journalctl -f
 echo "6、配置kubectl"
 
 # 创建kubectl的配置目录
-mkdir ~/.kube/
+mkdir /root/.kube/
 # 把管理员的配置文件移动到kubectl的默认目录
-mv ~/admin.kubeconfig ~/.kube/config
+mv /root/admin.kubeconfig /root/.kube/config
 # 测试
 kubectl get nodes
 

@@ -6,7 +6,7 @@ echo ""
 echo "1、Container Runtime - Containerd"
 
 VERSION=1.5.5
-cd ~
+cd /root
 # 解压缩
 tar -xvf cri-containerd-cni-${VERSION}-linux-amd64.tar.gz
 
@@ -123,10 +123,7 @@ events {
 stream {
   upstream kube_apiserver {
     least_conn;
-    server ${MASTER_IPS[0]}:6443;
-    server ${MASTER_IPS[1]}:6443;
-    ...
-    server ${MASTER_IPS[N]}:6443;
+    ${insert}
   }
 
   server {

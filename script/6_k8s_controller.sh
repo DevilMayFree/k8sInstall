@@ -9,11 +9,17 @@ source "./parse.sh"
 # Exceute
 parse_info
 
-# master节点
-MASTERS=${master_name_arr[@]}
+# 拼接etcd信息
+etcd_servers=""
+for ((i=0; i<${#etcd_ip_arr[@]}; ++i)); do
+    etcd_ip=${etcd_ip_arr[$i]}
+    etcd_servers="${etcd_servers}https://"${etcd_ip}":2379,"
+done
+etcd_servers="${etcd_servers::-1}"
 
-for instance in ${MASTERS}; do
-    ssh root@${instance} "$(< './6_k8s_controller_inner.sh')"
+# master节点
+for instance in ${master_name_arr[@]}; do
+    ssh root@${instance} "$(< './k8s_controller_inner.sh')"
 done
 
 echo "success!" && exit 0
