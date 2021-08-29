@@ -245,11 +245,14 @@ cat > kubernetes-csr.json <<EOF
 }
 EOF
 
+printf -v joined '%s,' "${master_ip_arr[@]}"
+echo "${joined%,}"
+
 cfssl gencert \
   -ca=ca.pem \
   -ca-key=ca-key.pem \
   -config=ca-config.json \
-  -hostname=${KUBERNETES_SVC_IP},${master_ip_arr},127.0.0.1,kubernetes,kubernetes.default,kubernetes.default.svc,kubernetes.default.svc.cluster,kubernetes.svc.cluster.local \
+  -hostname=${KUBERNETES_SVC_IP},${joined%,},127.0.0.1,kubernetes,kubernetes.default,kubernetes.default.svc,kubernetes.default.svc.cluster,kubernetes.svc.cluster.local \
   -profile=kubernetes \
   kubernetes-csr.json | cfssljson -bare kubernetes
 
