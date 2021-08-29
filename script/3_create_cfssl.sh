@@ -41,7 +41,7 @@ mkdir /root/pki && cd /root/pki
 
 echo "1、根证书创建"
 
-cat > ca-config.json <<-'EOF'
+cat > ca-config.json <<EOF
 {
   "signing": {
     "default": {
@@ -57,7 +57,7 @@ cat > ca-config.json <<-'EOF'
 }
 EOF
 
-cat > ca-csr.json <<-'EOF'
+cat > ca-csr.json <<EOF
 {
   "CN": "Kubernetes",
   "key": {
@@ -82,7 +82,7 @@ ls -la
 
 echo "2、admin客户端证书"
 
-cat > admin-csr.json <<-'EOF'
+cat > admin-csr.json <<EOF
 {
   "CN": "admin",
   "key": {
@@ -113,7 +113,7 @@ echo "3、kubelet客户端证书"
 
 for ((i=0;i<${#worker_name_arr[@]};i++)); do
 echo "" ${worker_name_arr[$i]}
-cat > ${worker_name_arr[$i]}-csr.json <<-'EOF'
+cat > ${worker_name_arr[$i]}-csr.json <<EOF
 {
   "CN": "system:node:${worker_name_arr[$i]}",
   "key": {
@@ -142,7 +142,7 @@ done
 
 echo "4、kube-controller-manager客户端证书"
 
-cat > kube-controller-manager-csr.json <<-'EOF'
+cat > kube-controller-manager-csr.json <<EOF
 {
     "CN": "system:kube-controller-manager",
     "key": {
@@ -170,7 +170,7 @@ cfssl gencert \
 
 echo "5、kube-proxy客户端证书"
 
-cat > kube-proxy-csr.json <<-'EOF'
+cat > kube-proxy-csr.json <<EOF
 {
   "CN": "system:kube-proxy",
   "key": {
@@ -198,7 +198,7 @@ cfssl gencert \
 
 echo "6、kube-scheduler客户端证书"
 
-cat > kube-scheduler-csr.json <<-'EOF'
+cat > kube-scheduler-csr.json <<EOF
 {
     "CN": "system:kube-scheduler",
     "key": {
@@ -226,7 +226,7 @@ cfssl gencert \
 
 echo "7、kube-apiserver服务端证书"
 
-cat > kubernetes-csr.json <<-'EOF'
+cat > kubernetes-csr.json <<EOF
 {
   "CN": "kubernetes",
   "key": {
@@ -255,7 +255,7 @@ cfssl gencert \
 
 echo "8、Service Account证书"
 
-cat > service-account-csr.json <<-'EOF'
+cat > service-account-csr.json <<EOF
 {
   "CN": "service-accounts",
   "key": {
@@ -284,7 +284,7 @@ cfssl gencert \
 
 echo "9、proxy-client 证书"
 
-cat > proxy-client-csr.json <<-'EOF'
+cat > proxy-client-csr.json <<EOF
 {
   "CN": "aggregator",
   "key": {
