@@ -7,7 +7,7 @@ echo $(hostname -I|awk '{print $1}')
 cd /root
 mkdir -p /etc/etcd /var/lib/etcd
 chmod 700 /var/lib/etcd
-cp ca.pem kubernetes-key.pem kubernetes.pem /etc/etcd/
+cp ca.pem etcd-key.pem etcd.pem /etc/etcd/
 
 # local
 ETCD_NAME=$(hostname -s)
@@ -22,10 +22,10 @@ Documentation=https://github.com/coreos
 Type=notify
 ExecStart=/usr/local/bin/etcd \\
   --name ${ETCD_NAME} \\
-  --cert-file=/etc/etcd/kubernetes.pem \\
-  --key-file=/etc/etcd/kubernetes-key.pem \\
-  --peer-cert-file=/etc/etcd/kubernetes.pem \\
-  --peer-key-file=/etc/etcd/kubernetes-key.pem \\
+  --cert-file=/etc/etcd/etcd.pem \\
+  --key-file=/etc/etcd/etcd-key.pem \\
+  --peer-cert-file=/etc/etcd/etcd.pem \\
+  --peer-key-file=/etc/etcd/etcd-key.pem \\
   --trusted-ca-file=/etc/etcd/ca.pem \\
   --peer-trusted-ca-file=/etc/etcd/ca.pem \\
   --peer-client-cert-auth \\

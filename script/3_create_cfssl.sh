@@ -80,6 +80,44 @@ cfssl gencert -initca ca-csr.json | cfssljson -bare ca
 
 ls -la
 
+echo "1.1 创建etcd证书"
+
+# 拼接etcd集群信息
+etcd_cluster=""
+for ((i=0; i<${#etcd_name_arr[@]}; ++i)); do
+    etcd_name=${etcd_name_arr[i]}
+    etcd_cluster="${etcd_cluster}"\""${etcd_name}"\"","
+done
+etcd_cluster="${etcd_cluster::-1}"
+
+cat > etcd-csr.json <<EOF
+{
+  "CN": "etcd",
+  "key": {
+    "algo": "rsa",
+    "size": 2048
+  },
+  "hosts": [
+    ${etcd_cluster}
+  ],
+  "names": [
+    {
+      "C": "CN",
+      "ST": "shenzhen",
+      "L": "shenzhen",
+      "O": "etcd",
+      "OU": "System"
+    }
+  ]
+}
+EOF
+
+cfssl gencert \
+  -ca=ca.pem \
+  -ca-key=ca-key.pem \
+  -config=ca-config.json \
+  -profile=etcd etcd-csr.json | cfssljson -bare etcd
+
 echo "2、admin客户端证书"
 
 cat > admin-csr.json <<EOF
@@ -321,6 +359,10 @@ for instance in ${worker_name_arr[@]}; do
    ${instance}-key.pem ${instance}.pem root@${instance}:~/
 done
 
+for instance in ${etcd_name_arr[@]}; do
+  scp ca.pem etcd-key.pem etcd.pem \
+   ${instance}-key.pem ${instance}.pem root@${instance}:~/
+done
 
 OIFS=$IFS
 IFS=','
