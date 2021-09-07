@@ -92,7 +92,7 @@ etcd_cluster="${etcd_cluster::-1}"
 
 cat > etcd-csr.json <<EOF
 {
-  "CN": "etcd",
+  "CN": "Kubernetes",
   "key": {
     "algo": "rsa",
     "size": 2048
@@ -102,11 +102,11 @@ cat > etcd-csr.json <<EOF
   ],
   "names": [
     {
-      "C": "CN",
-      "ST": "shenzhen",
-      "L": "shenzhen",
-      "O": "etcd",
-      "OU": "System"
+      "C": "US",
+      "L": "Portland",
+      "O": "Kubernetes",
+      "OU": "CA",
+      "ST": "Oregon"
     }
   ]
 }
@@ -116,7 +116,8 @@ cfssl gencert \
   -ca=ca.pem \
   -ca-key=ca-key.pem \
   -config=ca-config.json \
-  -profile=etcd etcd-csr.json | cfssljson -bare etcd
+  -profile=kubernetes \
+  etcd-csr.json | cfssljson -bare etcd
 
 echo "2、admin客户端证书"
 
