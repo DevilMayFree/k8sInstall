@@ -84,8 +84,9 @@ echo "1.1 创建etcd证书"
 
 # 拼接etcd集群信息
 etcd_cluster=""
-for ((i=0; i<${#etcd_name_arr[@]}; ++i)); do
-    etcd_name=${etcd_name_arr[i]}
+all_etcd_arr=(${etcd_name_arr[@]} ${etcd_ip_arr[@]})
+for ((i=0; i<${#all_etcd_arr[@]}; ++i)); do
+    etcd_name=${all_etcd_arr[i]}
     etcd_cluster="${etcd_cluster}"\""${etcd_name}"\"","
 done
 etcd_cluster="${etcd_cluster::-1}"

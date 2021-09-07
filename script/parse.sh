@@ -78,4 +78,6 @@ parse_info()
     echo "etcd info:"
     echo ${etcd_name_arr[*]}
     echo ${etcd_ip_arr[*]}
+    echo "Parse config.yml end!"
+    echo ""
 }
