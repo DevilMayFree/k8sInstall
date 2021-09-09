@@ -3850,7 +3850,7 @@ spec:
             #  value: "autodetect"
               valueFrom:
                 fieldRef:
-		  fieldPath: status.hostIP
+                  fieldPath: status.hostIP
             # Enable IPIP
             - name: CALICO_IPV4POOL_IPIP
               value: "Always"
