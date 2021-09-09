@@ -119,7 +119,7 @@ events {
 stream {
   upstream kube_apiserver {
     least_conn;
-    ${1}
+    $1
   }
 
   server {
