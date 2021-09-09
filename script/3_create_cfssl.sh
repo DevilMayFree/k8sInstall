@@ -257,8 +257,8 @@ distinct_ip_arr=($(awk -v RS=' ' '!a[$1]++' <<< ${all_ip_arr[@]}))
 
 # Splicing
 for ((i=0; i<${#distinct_ip_arr[@]}; ++i)); do
-    etcd_name=${distinct_ip_arr[i]}
-    ip_cluster="${ip_cluster}""${etcd_name}"","
+    temp_ip=${distinct_ip_arr[i]}
+    ip_cluster="${ip_cluster}""${temp_ip}"","
 done
 ip_cluster="${ip_cluster::-1}"
 
