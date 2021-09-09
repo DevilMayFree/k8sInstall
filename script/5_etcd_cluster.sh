@@ -29,11 +29,7 @@ for instance in ${etcd_name_arr[@]}; do
 done
 
 echo "Verify etcd cluster"
-ETCDCTL_API=3 etcdctl member list \
-  --endpoints=https://127.0.0.1:2379 \
-  --cacert=/etc/etcd/ca.pem \
-  --cert=/etc/etcd/etcd.pem \
-  --key=/etc/etcd/etcd-key.pem
+ssh -o StrictHostKeyChecking=no root@${etcd_name_arr[0]} "ETCDCTL_API=3 etcdctl member list --endpoints=https://127.0.0.1:2379 --cacert=/etc/etcd/ca.pem --cert=/etc/etcd/etcd.pem --key=/etc/etcd/etcd-key.pem"
 
 echo "success!" && exit 0
 
