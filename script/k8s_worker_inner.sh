@@ -234,17 +234,10 @@ echo "5、start server"
 systemctl daemon-reload
 systemctl enable kubelet kube-proxy
 systemctl restart kubelet kube-proxy
-journalctl -f -u kubelet
-journalctl -f -u kube-proxy
+mkdir /root/logs
+journalctl -xe -u kubelet >> /root/logs/k8s_worker_kubelet.log
+journalctl -xe -u kube-proxy >> /root/logs/k8s_worker_kube-proxy.log
 
 echo "6、Manually download the pause image"
 crictl pull registry.cn-hangzhou.aliyuncs.com/kubernetes-kubespray/pause:3.2
 ctr -n k8s.io i tag  registry.cn-hangzhou.aliyuncs.com/kubernetes-kubespray/pause:3.2 k8s.gcr.io/pause:3.2
-
-
-
-
-
-
-
-

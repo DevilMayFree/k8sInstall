@@ -145,7 +145,8 @@ echo "5、Service verification"
 echo "Listening port of each component:"
 netstat -ntlp
 echo "System log verification:"
-journalctl -f
+mkdir /root/logs
+journalctl -xe >> /root/logs/k8s_controller.log
 
 echo "6、set kubectl"
 
