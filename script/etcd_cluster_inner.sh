@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "部署ETCD集群"
+echo "Deploy an ETCD cluster"
 echo "current_ip:"
 echo $(hostname -I|awk '{print $1}')
 

@@ -1,16 +1,16 @@
 #!/bin/bash
 
-echo "分发k8s软件"
+echo "Distribute k8s software"
 
 containerd_version=1.5.5
 
-# 加载解析的配置文件内容
+# Load the content of the parsed configuration file
 source "./parse.sh"
 
 # Exceute
 parse_info
 
-# 把master相关组件分发到master节点
+# Distribute the master related components to the master node
 cd ~/component/master
 chmod +x kube*
 
@@ -18,7 +18,7 @@ for remote_ip in ${master_ip_arr[@]}; do
   scp kube-apiserver kube-controller-manager kube-scheduler kubectl root@${remote_ip}:/usr/local/bin/
 done
 
-# 把worker相关组件分发到worker节点
+# Distribute worker-related components to worker nodes
 cd ~/component/worker
 chmod +x kube*
 
@@ -27,7 +27,7 @@ for remote_ip in ${worker_ip_arr[@]}; do
   scp cri-containerd-cni-${containerd_version}-linux-amd64.tar.gz root@${remote_ip}:/root
 done
 
-# 把etcd相关组件分发到etcd节点
+# Distribute etcd related components to etcd nodes
 cd ~/component/etcd
 chmod +x etcd*
 

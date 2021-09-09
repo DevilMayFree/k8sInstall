@@ -2,9 +2,9 @@
 
 # ---- init env start ----
 
-echo "本脚本适合centos7,将初始化k8s环境"
+echo "This script is suitable for centos7 and will initialize the k8s environment"
 
-# 阿里云 CentOS7 源
+# Alibaba CentOS7 source
 cat > /etc/yum.repos.d/ali-docker-ce.repo <<-'EOF'
 [docker-ce-stable]
 name=Docker CE Stable - $basearch
@@ -14,7 +14,7 @@ gpgcheck=1
 gpgkey=https://mirrors.aliyun.com/docker-ce/linux/centos/gpg
 EOF
 
-# 清华镜像源
+# tsinghua Source
 cat > /etc/yum.repos.d/th-docker-ce.repo <<-'EOF'
 [docker-ce-stable]
 name=Docker CE Stable - $basearch
@@ -24,7 +24,7 @@ gpgcheck=1
 gpgkey=https://mirrors.tuna.tsinghua.edu.cn/docker-ce/linux/centos/gpg
 EOF
 
-# k8s 源
+# k8s Source
 cat > /etc/yum.repos.d/kubernetes.repo <<-'EOF'
 [kubernetes]
 name=Kubernetes
@@ -36,17 +36,17 @@ gpgkey=https://mirrors.aliyun.com/kubernetes/yum/doc/yum-key.gpg https://mirrors
 EOF
 
 
-# 阿里云CentOS7源
+# Alibaba centos7 Source
 curl -o /etc/yum.repos.d/aliyun.repo https://mirrors.aliyun.com/repo/Centos-7.repo
 sed -ri -e '/mirrors.cloud.aliyuncs.com/d' -e '/mirrors.aliyuncs.com/d' -e 's/\$releasever/7/g' /etc/yum.repos.d/aliyun.repo
 
-# 更新
+# update
 yum update -y --exclude=kernel*
 
-# 安装 epel 源，用于安装 container-selinux
+# install epel source, used to install container-selinux
 yum install -y epel-release
 
-## 安装基础包
+## Install the base package
 yum install -y bash-completion net-tools \
 	tree wget make cmake gcc gcc-c++ createrepo \
 	device-mapper-persistent-data lvm2 psmisc vim \
@@ -54,7 +54,7 @@ yum install -y bash-completion net-tools \
 	socat conntrack ipvsadm ipset jq sysstat curl iptables libseccomp yum-utils
 
 
-# 关闭防火墙
+# Turn off the firewall
 systemctl stop firewalld && systemctl disable firewalld
 
 # SELINUX
@@ -62,31 +62,31 @@ setenforce 0
 sed -i 's/^SELINUX=enforcing$/SELINUX=disable/' /etc/selinux/config
 
 
-# 设置iptables规则
+# Set iptables rules
 iptables -F && iptables -X && iptables -F -t nat && iptables -X -t nat && iptables -P FORWARD ACCEPT
 
-# 关闭swap
+# Close swap
 swapoff -a && free –h
 sed -i 's/.*swap.*/#&/g' /etc/fstab
 
-# 关闭dnsmasq
+# Close dnsmasq
 service dnsmasq stop && systemctl disable dnsmasq
 
-# 加载内核模块
+# Load the kernel module
 modprobe ip_vs_rr
 modprobe br_netfilter
 
-# 时间同步
+# Time synchronization
 yum install ntpdate -y
 ntpdate ntp.api.bz
 
-# 调整系统 TimeZone
+# Tuning system TimeZone
 timedatectl set-timezone Asia/Shanghai
 
-# 当前的 UTC 时间写入硬件时钟
+# The current UTC time is written to the hardware clock
 timedatectl set-local-rtc 0
 
-# 资源限制
+# Resource limit
 if [ `ulimit -n` -lt 65536 ]; then
     {
     echo "*    soft    nofile    655360"
@@ -99,7 +99,7 @@ if [ `ulimit -n` -lt 65536 ]; then
 fi
 
 
-# 制作配置文件
+# Make a configuration file
 cat > /etc/sysctl.d/kubernetes.conf <<-'EOF'
 net.bridge.bridge-nf-call-ip6tables = 1
 net.bridge.bridge-nf-call-iptables = 1
@@ -109,7 +109,7 @@ vm.swappiness = 0
 vm.overcommit_memory = 1
 EOF
 
-# 生效文件
+# Effective
 sysctl -p /etc/sysctl.d/kubernetes.conf
 
 echo "success!" && exit 0

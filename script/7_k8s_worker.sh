@@ -1,9 +1,9 @@
 #!/bin/bash
 
-echo "部署kubernetes工作节点"
-echo "运行在每个worker节点"
+echo "Deploy kubernetes worker nodes"
+echo "Run on each worker node"
 
-# 加载解析的配置文件内容
+# Load the content of the parsed configuration file
 source "./parse.sh"
 
 # Exceute

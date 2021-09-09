@@ -2,45 +2,45 @@
 
 # ---- update kernel start ----
 
-echo "本脚本适合centos7,将更新内核版本至最新稳定版,更新后重启"
+echo "This script is suitable for centos7, will update the kernel version to the latest stable version, restart after the update"
 
-# 当前系统版本
+# Current kernel version
 echo "current kernel:"
 cat /etc/redhat-release
 uname -sr
 
 yum update -y
 
-# 添加第三方yum源
+# Add third-party yum source
 rpm --import https://www.elrepo.org/RPM-GPG-KEY-elrepo.org
 rpm -Uvh http://www.elrepo.org/elrepo-release-7.0-3.el7.elrepo.noarch.rpm
 
-# 可安装的内核包
+# Installable kernel package
 yum --disablerepo="*" --enablerepo="elrepo-kernel" list available
 
-# 安装内核
+# Install the kernel
 yum -y --enablerepo=elrepo-kernel install kernel-ml
 
-# 修改grub2
+# Modify grub2
 grub2-set-default 0 && grub2-mkconfig -o /etc/grub2.cfg
 
-# 在 Centos/RedHat Linux 7 中启用 user namespace
+# Enable user namespace in Centos/RedHat Linux 7
 grubby --args="user_namespace.enable=1" --update-kernel="$(grubby --default-kernel)"
 
-# 检查确认启动的 namespace, 如果是 y，则启用了对应的namespace，否则未启用
+# Check to confirm the started namespace, if it is y, the corresponding namespace is enabled, otherwise it is not enabled
 grep "CONFIG_[USER,IPC,PID,UTS,NET]*_NS" $(ls /boot/config*|tail -1)
 
-# 在 Centos/RedHat Linux 7 中关闭 user namespace
+# Close user namespace in Centos/RedHat Linux 7
 grubby --remove-args="user_namespace.enable=1" --update-kernel="$(grubby --default-kernel)"
 
 # check
 grubby --default-kernel
 
-# 内核版本
+# kernel version
 echo "updated kernel:"
 uname -sr
 
 # ---- update kernel end ----
 
-# 重启
+# reboot
 reboot

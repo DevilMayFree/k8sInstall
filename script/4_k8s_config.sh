@@ -1,9 +1,9 @@
 #!/bin/bash
 
-echo "kubernetes各组件的认证配置"
-echo "生成各个组件的kubeconfigs，包括controller-manager，kubelet，kube-proxy，scheduler，以及admin用户"
+echo "Authentication configuration of each component of kubernetes"
+echo "Generate kubeconfigs for each component, including controller-manager, kubelet, kube-proxy, scheduler, and admin users"
 
-# 加载解析的配置文件内容
+# Load the content of the parsed configuration file
 source "./parse.sh"
 
 # Exceute
@@ -100,7 +100,7 @@ kubectl config set-context default \
 
 kubectl config use-context default --kubeconfig=kube-scheduler.kubeconfig
 
-echo "5、admin用户配置"
+echo "5、admin User configuration"
 
 kubectl config set-cluster kubernetes \
   --certificate-authority=ca.pem \
@@ -121,7 +121,7 @@ kubectl config set-context default \
 
 kubectl config use-context default --kubeconfig=admin.kubeconfig
 
-echo "6、分发配置文件"
+echo "6、Distribution configuration file"
 
 for instance in ${worker_name_arr[@]}; do
     scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -r ${instance}.kubeconfig kube-proxy.kubeconfig root@${instance}:~/
