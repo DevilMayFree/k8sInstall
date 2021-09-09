@@ -318,7 +318,7 @@ for instance in ${worker_name_arr[@]}; do
 done
 
 for instance in ${etcd_name_arr[@]}; do
-  scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -r ca.pem etcd-key.pem etcd.pem ${instance}-key.pem ${instance}.pem root@${instance}:~/
+  scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -r ca.pem etcd-key.pem etcd.pem kubernetes-key.pem kubernetes.pem root@${instance}:~/
 done
 
 OIFS=$IFS
