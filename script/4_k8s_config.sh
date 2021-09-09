@@ -132,14 +132,3 @@ for instance in ${master_name_arr[@]}; do
 done
 
 echo "success!" && exit 0
-
-
-
-
-
-
-
-
-
-
-
