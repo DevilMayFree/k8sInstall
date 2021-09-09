@@ -2,7 +2,7 @@
 
 echo "Install network plug-in calico && CoreDNS"
 
-cd ~/component
+cd /root/component
 echo "install calico"
 kubectl apply -f calico.yaml
 echo "calico success!"
