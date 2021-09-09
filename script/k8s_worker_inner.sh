@@ -244,6 +244,9 @@ mkdir /root/logs
 journalctl -xe -u kubelet >> /root/logs/k8s_worker_kubelet.log
 journalctl -xe -u kube-proxy >> /root/logs/k8s_worker_kube-proxy.log
 
-echo "6、Manually download the pause image"
+echo "6、Manually download the image"
 crictl pull registry.cn-hangzhou.aliyuncs.com/kubernetes-kubespray/pause:3.2
 ctr -n k8s.io i tag  registry.cn-hangzhou.aliyuncs.com/kubernetes-kubespray/pause:3.2 k8s.gcr.io/pause:3.2
+
+crictl pull registry.aliyuncs.com/google_containers/k8s-dns-node-cache:1.15.13
+ctr -n k8s.io i tag  registry.aliyuncs.com/google_containers/k8s-dns-node-cache:1.15.13 k8s.gcr.io/k8s-dns-node-cache:1.15.13
