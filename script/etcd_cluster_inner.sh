@@ -9,6 +9,11 @@ mkdir -p /etc/etcd /var/lib/etcd
 chmod 700 /var/lib/etcd
 cp ca.pem etcd-key.pem etcd.pem kubernetes-key.pem kubernetes.pem /etc/etcd/
 
+etcd_file="/usr/local/bin/etcd"
+if [[ ! -f "etcd_file" ]]; then
+  echo "cannot find /usr/local/bin/etcd!" && exit 1
+fi
+
 # local
 ETCD_NAME=$(hostname -s)
 ETCD_IP=$(hostname -I|awk '{print $1}')
