@@ -47,7 +47,7 @@ yum update -y --exclude=kernel*
 yum install -y epel-release
 
 ## Install the base package
-yum install -y bash-completion net-tools \
+yum install -y bash-completion ntp net-tools \
 	tree wget make cmake gcc gcc-c++ createrepo \
 	device-mapper-persistent-data lvm2 psmisc vim \
 	lrzsz git vim-enhanced ntpdate ipvsadm conntrack-tools \
@@ -56,6 +56,8 @@ yum install -y bash-completion net-tools \
 
 # Turn off the firewall
 systemctl stop firewalld && systemctl disable firewalld
+
+systemctl start ntp && systemctl enable ntpd
 
 # SELINUX
 setenforce 0
