@@ -11,7 +11,7 @@ source "./parse.sh"
 parse_info
 
 # Distribute the master related components to the master node
-cd ~/component/master
+cd /root/component/master
 chmod +x kube*
 
 for remote_ip in ${master_ip_arr[@]}; do
@@ -19,7 +19,7 @@ for remote_ip in ${master_ip_arr[@]}; do
 done
 
 # Distribute worker-related components to worker nodes
-cd ~/component/worker
+cd /root/component/worker
 chmod +x kube*
 
 for remote_ip in ${worker_ip_arr[@]}; do
@@ -28,7 +28,7 @@ for remote_ip in ${worker_ip_arr[@]}; do
 done
 
 # Distribute etcd related components to etcd nodes
-cd ~/component/etcd
+cd /root/component/etcd
 chmod +x etcd*
 
 for remote_ip in ${etcd_ip_arr[@]}; do
