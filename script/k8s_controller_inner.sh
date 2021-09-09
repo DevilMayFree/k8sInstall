@@ -161,18 +161,3 @@ kubectl get nodes
 kubectl create clusterrolebinding kube-apiserver:kubelet-apis --clusterrole=system:kubelet-api-admin --user kubernetes
 
 echo "remote success!"
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
