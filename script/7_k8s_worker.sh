@@ -11,7 +11,7 @@ parse_info
 
 insert=""
 for instance in ${master_ip_arr[@]}; do
-    insert="${insert}server ${instance}:6443; "
+    insert="${insert}server'  '${instance}:6443';''   '"
 done
 
 for instance in ${worker_name_arr[@]}; do

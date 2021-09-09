@@ -4,6 +4,10 @@ echo "Deploy kubernetes worker nodes"
 echo "Kubelet, kube-proxy, container runtime, cni, nginx-proxy will be deployed on each node"
 echo ""
 echo "1、Container Runtime - Containerd"
+# Local host ip
+IP=$(hostname -I|awk '{print $1}')
+echo "current worker ip :"
+echo $IP
 
 VERSION=1.5.5
 cd /root
@@ -37,8 +41,10 @@ mkdir -p /etc/kubernetes/ssl/
 mv ${HOSTNAME}-key.pem ${HOSTNAME}.pem ca.pem ca-key.pem /etc/kubernetes/ssl/
 mv ${HOSTNAME}.kubeconfig /etc/kubernetes/kubeconfig
 
-# Local host ip
-IP=$(hostname -I|awk '{print $1}')
+insert=""
+for instance in ${master_ip_arr[@]}; do
+    insert=${insert}"server" ${instance}:6443;" "
+done
 
 # Write kubelet configuration file
 cat <<EOF > /etc/kubernetes/kubelet-config.yaml

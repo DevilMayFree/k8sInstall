@@ -3,6 +3,10 @@
 echo "Kubernetes control plane remote execution of scripts"
 echo ""
 echo "1、set API Server"
+# Local host ip
+IP=$(hostname -I|awk '{print $1}')
+echo "current controller ip :"
+echo $IP
 
 # Create the necessary directories for kubernetes
 mkdir -p /etc/kubernetes/ssl
@@ -16,8 +20,6 @@ mv ca.pem ca-key.pem kubernetes-key.pem kubernetes.pem \
     /etc/kubernetes/ssl
 
 # set kube-apiserver.service
-# Local network ip
-IP=$(hostname -I|awk '{print $1}')
 # apiserver instances
 # $1
 
