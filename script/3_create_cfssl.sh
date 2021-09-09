@@ -314,7 +314,7 @@ cfssl gencert -ca=ca.pem -ca-key=ca-key.pem -config=ca-config.json -profile=kube
 echo "10、distribute clients 、 servers certificate"
 
 for instance in ${worker_name_arr[@]}; do
-  scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -r ca.pem kubernetes-key.pem kubernetes.pem ${instance}-key.pem ${instance}.pem root@${instance}:~/
+  scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -r ca.pem ca-key.pem kubernetes-key.pem kubernetes.pem ${instance}-key.pem ${instance}.pem root@${instance}:~/
 done
 
 for instance in ${etcd_name_arr[@]}; do
