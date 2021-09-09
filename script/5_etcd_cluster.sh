@@ -18,22 +18,22 @@ done
 initial_cluster="${initial_cluster::-1}"
 
 for instance in ${etcd_name_arr[@]}; do
-    ssh root@${instance} "bash -s" < etcd_cluster_inner.sh ${initial_cluster}
+    ssh -o StrictHostKeyChecking=no root@${instance} "bash -s" < etcd_cluster_inner.sh ${initial_cluster}
 done
 
 echo "集群服务设置完成"
 
 # 启动etcd集群
 for instance in ${etcd_name_arr[@]}; do
-    ssh root@${instance} "systemctl daemon-reload && systemctl enable etcd && systemctl restart etcd"
+    ssh -o StrictHostKeyChecking=no root@${instance} "systemctl daemon-reload && systemctl enable etcd && systemctl restart etcd"
 done
 
 echo "验证etcd集群"
 ETCDCTL_API=3 etcdctl member list \
   --endpoints=https://127.0.0.1:2379 \
   --cacert=/etc/etcd/ca.pem \
-  --cert=/etc/etcd/kubernetes.pem \
-  --key=/etc/etcd/kubernetes-key.pem
+  --cert=/etc/etcd/etcd.pem \
+  --key=/etc/etcd/etcd-key.pem
 
 echo "success!" && exit 0
 

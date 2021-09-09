@@ -10,9 +10,6 @@ source "./parse.sh"
 # Exceute
 parse_info
 
-# 判断component文件夹是否存在
-
-
 # 把master相关组件分发到master节点
 cd ~/component/master
 chmod +x kube*

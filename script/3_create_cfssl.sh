@@ -113,12 +113,7 @@ cat > etcd-csr.json <<EOF
 }
 EOF
 
-cfssl gencert \
-  -ca=ca.pem \
-  -ca-key=ca-key.pem \
-  -config=ca-config.json \
-  -profile=kubernetes \
-  etcd-csr.json | cfssljson -bare etcd
+cfssl gencert -ca=ca.pem -ca-key=ca-key.pem -config=ca-config.json -profile=kubernetes etcd-csr.json | cfssljson -bare etcd
 
 echo "2、admin客户端证书"
 
@@ -141,13 +136,7 @@ cat > admin-csr.json <<EOF
 }
 EOF
 
-cfssl gencert \
-  -ca=ca.pem \
-  -ca-key=ca-key.pem \
-  -config=ca-config.json \
-  -profile=kubernetes \
-  admin-csr.json | cfssljson -bare admin
-
+cfssl gencert -ca=ca.pem -ca-key=ca-key.pem -config=ca-config.json -profile=kubernetes admin-csr.json | cfssljson -bare admin
 
 echo "3、kubelet客户端证书"
 
@@ -171,13 +160,7 @@ cat > ${worker_name_arr[$i]}-csr.json <<EOF
   ]
 }
 EOF
-cfssl gencert \
-  -ca=ca.pem \
-  -ca-key=ca-key.pem \
-  -config=ca-config.json \
-  -hostname=${worker_name_arr[$i]},${worker_ip_arr[$i]} \
-  -profile=kubernetes \
-  ${worker_name_arr[$i]}-csr.json | cfssljson -bare ${worker_name_arr[$i]}
+cfssl gencert -ca=ca.pem -ca-key=ca-key.pem -config=ca-config.json -hostname=${worker_name_arr[$i]},${worker_ip_arr[$i]} -profile=kubernetes ${worker_name_arr[$i]}-csr.json | cfssljson -bare ${worker_name_arr[$i]}
 done
 
 echo "4、kube-controller-manager客户端证书"
@@ -201,12 +184,7 @@ cat > kube-controller-manager-csr.json <<EOF
 }
 EOF
 
-cfssl gencert \
-  -ca=ca.pem \
-  -ca-key=ca-key.pem \
-  -config=ca-config.json \
-  -profile=kubernetes \
-  kube-controller-manager-csr.json | cfssljson -bare kube-controller-manager
+cfssl gencert -ca=ca.pem -ca-key=ca-key.pem -config=ca-config.json -profile=kubernetes kube-controller-manager-csr.json | cfssljson -bare kube-controller-manager
 
 echo "5、kube-proxy客户端证书"
 
@@ -229,12 +207,7 @@ cat > kube-proxy-csr.json <<EOF
 }
 EOF
 
-cfssl gencert \
-  -ca=ca.pem \
-  -ca-key=ca-key.pem \
-  -config=ca-config.json \
-  -profile=kubernetes \
-  kube-proxy-csr.json | cfssljson -bare kube-proxy
+cfssl gencert -ca=ca.pem -ca-key=ca-key.pem -config=ca-config.json -profile=kubernetes kube-proxy-csr.json | cfssljson -bare kube-proxy
 
 echo "6、kube-scheduler客户端证书"
 
@@ -257,12 +230,7 @@ cat > kube-scheduler-csr.json <<EOF
 }
 EOF
 
-cfssl gencert \
-  -ca=ca.pem \
-  -ca-key=ca-key.pem \
-  -config=ca-config.json \
-  -profile=kubernetes \
-  kube-scheduler-csr.json | cfssljson -bare kube-scheduler
+cfssl gencert -ca=ca.pem -ca-key=ca-key.pem -config=ca-config.json -profile=kubernetes kube-scheduler-csr.json | cfssljson -bare kube-scheduler
 
 echo "7、kube-apiserver服务端证书"
 
@@ -285,16 +253,21 @@ cat > kubernetes-csr.json <<EOF
 }
 EOF
 
-printf -v joined '%s,' "${master_ip_arr[@]}"
-echo "${joined%,}"
+# 拼接节点IP信息
+ip_cluster=""
+all_ip_arr=(${master_ip_arr[@]} ${etcd_ip_arr[@]})
 
-cfssl gencert \
-  -ca=ca.pem \
-  -ca-key=ca-key.pem \
-  -config=ca-config.json \
-  -hostname=${KUBERNETES_SVC_IP},${joined%,},127.0.0.1,kubernetes,kubernetes.default,kubernetes.default.svc,kubernetes.default.svc.cluster,kubernetes.svc.cluster.local \
-  -profile=kubernetes \
-  kubernetes-csr.json | cfssljson -bare kubernetes
+# 去重
+distinct_ip_arr=($(awk -v RS=' ' '!a[$1]++' <<< ${all_ip_arr[@]}))
+
+# 拼接
+for ((i=0; i<${#distinct_ip_arr[@]}; ++i)); do
+    etcd_name=${distinct_ip_arr[i]}
+    ip_cluster="${ip_cluster}""${etcd_name}"","
+done
+ip_cluster="${ip_cluster::-1}"
+
+cfssl gencert -ca=ca.pem -ca-key=ca-key.pem -config=ca-config.json -hostname=${KUBERNETES_SVC_IP},${ip_cluster},127.0.0.1,kubernetes,kubernetes.default,kubernetes.default.svc,kubernetes.default.svc.cluster,kubernetes.svc.cluster.local -profile=kubernetes kubernetes-csr.json | cfssljson -bare kubernetes
 
 echo "8、Service Account证书"
 
@@ -317,12 +290,7 @@ cat > service-account-csr.json <<EOF
 }
 EOF
 
-cfssl gencert \
-  -ca=ca.pem \
-  -ca-key=ca-key.pem \
-  -config=ca-config.json \
-  -profile=kubernetes \
-  service-account-csr.json | cfssljson -bare service-account
+cfssl gencert -ca=ca.pem -ca-key=ca-key.pem -config=ca-config.json -profile=kubernetes service-account-csr.json | cfssljson -bare service-account
 
 
 echo "9、proxy-client 证书"
@@ -346,31 +314,23 @@ cat > proxy-client-csr.json <<EOF
 }
 EOF
 
-cfssl gencert \
-  -ca=ca.pem \
-  -ca-key=ca-key.pem \
-  -config=ca-config.json \
-  -profile=kubernetes \
-  proxy-client-csr.json | cfssljson -bare proxy-client
+cfssl gencert -ca=ca.pem -ca-key=ca-key.pem -config=ca-config.json -profile=kubernetes proxy-client-csr.json | cfssljson -bare proxy-client
 
 
 echo "10、分发客户端、服务端证书"
 
 for instance in ${worker_name_arr[@]}; do
-  scp ca.pem kubernetes-key.pem kubernetes.pem \
-   ${instance}-key.pem ${instance}.pem root@${instance}:~/
+  scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -r ca.pem kubernetes-key.pem kubernetes.pem ${instance}-key.pem ${instance}.pem root@${instance}:~/
 done
 
 for instance in ${etcd_name_arr[@]}; do
-  scp ca.pem etcd-key.pem etcd.pem \
-   ${instance}-key.pem ${instance}.pem root@${instance}:~/
+  scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -r ca.pem etcd-key.pem etcd.pem ${instance}-key.pem ${instance}.pem root@${instance}:~/
 done
 
 OIFS=$IFS
 IFS=','
 for instance in ${master_ip_arr[@]}; do
-  scp ca.pem ca-key.pem kubernetes-key.pem kubernetes.pem \
-    service-account-key.pem service-account.pem proxy-client.pem proxy-client-key.pem root@${instance}:~/
+  scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -r ca.pem ca-key.pem kubernetes-key.pem kubernetes.pem service-account-key.pem service-account.pem proxy-client.pem proxy-client-key.pem root@${instance}:~/
 done
 IFS=$OIFS
 

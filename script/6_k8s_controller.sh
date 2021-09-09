@@ -24,7 +24,7 @@ echo ${apiserver_count}
 
 # master节点
 for instance in ${master_name_arr[@]}; do
-    ssh root@${instance} "bash -s" < k8s_controller_inner.sh ${apiserver_count} ${etcd_servers}
+    ssh -o StrictHostKeyChecking=no root@${instance} "bash -s" < k8s_controller_inner.sh ${apiserver_count} ${etcd_servers}
 done
 
 echo "success!" && exit 0

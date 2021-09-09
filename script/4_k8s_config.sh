@@ -124,13 +124,12 @@ kubectl config use-context default --kubeconfig=admin.kubeconfig
 echo "6、分发配置文件"
 
 for instance in ${worker_name_arr[@]}; do
-    scp ${instance}.kubeconfig kube-proxy.kubeconfig root@${instance}:~/
+    scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -r ${instance}.kubeconfig kube-proxy.kubeconfig root@${instance}:~/
 done
 
 for instance in ${master_name_arr[@]}; do
-    scp admin.kubeconfig kube-controller-manager.kubeconfig kube-scheduler.kubeconfig root@${instance}:~/
+    scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -r admin.kubeconfig kube-controller-manager.kubeconfig kube-scheduler.kubeconfig root@${instance}:~/
 done
-
 
 echo "success!" && exit 0
 
