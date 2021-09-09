@@ -114,4 +114,7 @@ EOF
 # Effective
 sysctl -p /etc/sysctl.d/kubernetes.conf
 
+# pip
+pip install --upgrade pip
+
 echo "success!" && exit 0
