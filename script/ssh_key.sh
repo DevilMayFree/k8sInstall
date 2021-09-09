@@ -1,17 +1,17 @@
 #!/bin/bash
 
-echo "使用ssh-copy-id复制当前所有key到远程主机"
+echo "Use ssh-copy-id to copy all the current keys to the remote host"
 
 source "./parse.sh"
 
-#Exceute
+# Exceute
 parse_info
 
-# 是否已经存在rsa公钥
+# Whether the rsa public key already exists
 id_rsa_file="~/.ssh/id_rsa.pub"
 
 if [[ ! -f "$id_rsa_file" ]]; then
-    # 创建一个新的
+    # Create a new one
     echo "run ssh-keygen ..."
     ssh-keygen -t rsa
 fi
@@ -22,27 +22,27 @@ all_node_ip_arr=(${master_ip_arr[@]} ${worker_ip_arr[@]})
 all_node_name_arr=(${master_name_arr[@]} ${worker_name_arr[@]})
 all_hosts=""
 
-echo "所有的节点ip地址:"
+echo "All node ip addresses:"
 echo ${all_node_ip_arr[*]}
 echo ""
-echo "所有节点hostname:"
+echo "Hostname of all nodes:"
 echo ${all_node_name_arr[*]}
 
-# 首次登录每个节点
+# Log in to each node for the first time
 for i in ${all_node_ip_arr[*]}; do
     ip_arr="${i}"
     echo "ip_arr "${ip_arr}" password:"
     ssh-copy-id -i ~/.ssh/id_rsa.pub -o StrictHostKeyChecking=no root@${ip_arr}
 done
 
-# 生成完整hosts
+# Generate complete hosts
 for ((i=0; i<${#all_node_name_arr[@]}; ++i)); do
     remote_ip=${all_node_ip_arr[$i]}
     remote_hostname=${all_node_name_arr[i]}
     all_hosts="${all_hosts}${remote_ip}""    ""${remote_hostname}""\n"
 done
 
-# 每个节点设置hostname并添加hosts
+# Set hostname for each node and add hosts
 for ((i=0; i<${#all_node_name_arr[@]}; ++i)); do
     remote_ip=${all_node_ip_arr[$i]}
     remote_hostname=${all_node_name_arr[i]}

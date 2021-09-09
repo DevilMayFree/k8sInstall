@@ -1,46 +1,46 @@
 #!bin/bash
 
-echo "部署kubernetes工作节点"
-echo "每个节点上会部署kubelet、kube-proxy、container runtime、cni、nginx-proxy"
+echo "Deploy kubernetes worker nodes"
+echo "Kubelet, kube-proxy, container runtime, cni, nginx-proxy will be deployed on each node"
 echo ""
 echo "1、Container Runtime - Containerd"
 
 VERSION=1.5.5
 cd /root
-# 解压缩
+# unzip
 tar -xvf cri-containerd-cni-${VERSION}-linux-amd64.tar.gz
 
-# 复制需要的文件
+# Copy the required files
 cp etc/crictl.yaml /etc/
 cp etc/systemd/system/containerd.service /etc/systemd/system/
 cp -r usr /
 
 mkdir -p /etc/containerd
-# 默认配置生成配置文件
+# The default configuration generates a configuration file
 containerd config default > /etc/containerd/config.toml
-# 修改为阿里云镜像
+# Modify to Alibaba Cloud image
 sed -i "s#k8s.gcr.io#registry.cn-hangzhou.aliyuncs.com/google_containers#g"  /etc/containerd/config.toml 
 sed -i "s#https://registry-1.docker.io#https://registry.cn-hangzhou.aliyuncs.com#g"  /etc/containerd/config.toml
-# 添加 SystemdCgroup = true
+# add SystemdCgroup = true
 sed -i '/containerd.runtimes.runc.options/a\ \ \ \ \ \ \ \ \ \ \ \ SystemdCgroup = true' /etc/containerd/config.toml
 
-# 启动containerd
+# start containerd
 systemctl enable containerd
 systemctl restart containerd
-# 检查状态
+# Check status
 systemctl status containerd
 
-echo "2、配置kubelet"
+echo "2、set kubelet"
 
-# 准备kubelet配置
+# Prepare kubelet configuration
 mkdir -p /etc/kubernetes/ssl/
 mv ${HOSTNAME}-key.pem ${HOSTNAME}.pem ca.pem ca-key.pem /etc/kubernetes/ssl/
 mv ${HOSTNAME}.kubeconfig /etc/kubernetes/kubeconfig
 
-# 本机ip
+# Local host ip
 IP=$(hostname -I|awk '{print $1}')
 
-# 写入kubelet配置文件
+# Write kubelet configuration file
 cat <<EOF > /etc/kubernetes/kubelet-config.yaml
 kind: KubeletConfiguration
 apiVersion: kubelet.config.k8s.io/v1beta1
@@ -72,7 +72,7 @@ tlsCertFile: "/etc/kubernetes/ssl/${HOSTNAME}.pem"
 tlsPrivateKeyFile: "/etc/kubernetes/ssl/${HOSTNAME}-key.pem"
 EOF
 
-# 配置kubelet服务
+# Configure kubelet service
 cat <<EOF > /etc/systemd/system/kubelet.service
 [Unit]
 Description=Kubernetes Kubelet
@@ -100,10 +100,9 @@ EOF
 
 echo "3、配置nginx-proxy"
 
-# nginx配置文件
+# nginx configuration file
 mkdir -p /etc/nginx
 
-# 执行前请先copy一份，并修改好upstream的 'server' 部分配置
 cat <<EOF > /etc/nginx/nginx.conf
 error_log stderr notice;
 
@@ -202,10 +201,10 @@ spec:
       path: /etc/nginx
 EOF
 
-echo "4、配置kube-proxy"
+echo "4、set kube-proxy"
 
 mv kube-proxy.kubeconfig /etc/kubernetes/
-# 创建 kube-proxy-config.yaml
+# create kube-proxy-config.yaml
 cat <<EOF > /etc/kubernetes/kube-proxy-config.yaml
 apiVersion: kubeproxy.config.k8s.io/v1alpha1
 kind: KubeProxyConfiguration
@@ -215,7 +214,7 @@ clientConnection:
 clusterCIDR: "10.200.0.0/16"
 mode: ipvs
 EOF
-# kube-proxy 服务文件
+# kube-proxy Service file
 cat <<EOF > /etc/systemd/system/kube-proxy.service
 [Unit]
 Description=Kubernetes Kube Proxy
@@ -231,14 +230,14 @@ RestartSec=5
 WantedBy=multi-user.target
 EOF
 
-echo "5、启动服务"
+echo "5、start server"
 systemctl daemon-reload
 systemctl enable kubelet kube-proxy
 systemctl restart kubelet kube-proxy
 journalctl -f -u kubelet
 journalctl -f -u kube-proxy
 
-echo "6、手动下载pause镜像"
+echo "6、Manually download the pause image"
 crictl pull registry.cn-hangzhou.aliyuncs.com/kubernetes-kubespray/pause:3.2
 ctr -n k8s.io i tag  registry.cn-hangzhou.aliyuncs.com/kubernetes-kubespray/pause:3.2 k8s.gcr.io/pause:3.2
 

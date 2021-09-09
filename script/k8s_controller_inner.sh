@@ -1,27 +1,27 @@
 #!bin/bash
 
-echo "kubernetes控制平面远程执行脚本"
+echo "Kubernetes control plane remote execution of scripts"
 echo ""
-echo "1、配置 API Server"
+echo "1、set API Server"
 
-# 创建kubernetes必要目录
+# Create the necessary directories for kubernetes
 mkdir -p /etc/kubernetes/ssl
 
 cd /root
 
-# 准备证书文件
+# Prepare certificate files
 mv ca.pem ca-key.pem kubernetes-key.pem kubernetes.pem \
     service-account-key.pem service-account.pem \
     proxy-client.pem proxy-client-key.pem \
     /etc/kubernetes/ssl
 
-# 配置kube-apiserver.service
-# 本机内网ip
+# set kube-apiserver.service
+# Local network ip
 IP=$(hostname -I|awk '{print $1}')
-# apiserver实例数
+# apiserver instances
 # $1
 
-# 创建 apiserver service
+# create apiserver service
 cat <<EOF > /etc/systemd/system/kube-apiserver.service
 [Unit]
 Description=Kubernetes API Server
@@ -72,12 +72,12 @@ RestartSec=5
 WantedBy=multi-user.target
 EOF
 
-echo "2、配置kube-controller-manager"
+echo "2、set kube-controller-manager"
 
-# 准备kubeconfig配置文件
+# Prepare kubeconfig configuration file
 mv kube-controller-manager.kubeconfig /etc/kubernetes/
 
-# 创建 kube-controller-manager.service
+# create kube-controller-manager.service
 cat <<EOF > /etc/systemd/system/kube-controller-manager.service
 [Unit]
 Description=Kubernetes Controller Manager
@@ -105,12 +105,12 @@ RestartSec=5
 WantedBy=multi-user.target
 EOF
 
-echo "3、配置kube-scheduler"
+echo "3、set kube-scheduler"
 
-# 准备kubeconfig配置文件
+# Prepare kubeconfig configuration file
 mv kube-scheduler.kubeconfig /etc/kubernetes
 
-# 创建 scheduler service 文件
+# create scheduler service
 cat <<EOF > /etc/systemd/system/kube-scheduler.service
 [Unit]
 Description=Kubernetes Scheduler
@@ -132,7 +132,7 @@ RestartSec=5
 WantedBy=multi-user.target
 EOF
 
-echo "4、启动服务"
+echo "4、start server"
 systemctl daemon-reload
 systemctl enable kube-apiserver
 systemctl enable kube-controller-manager
@@ -141,22 +141,22 @@ systemctl restart kube-apiserver
 systemctl restart kube-controller-manager
 systemctl restart kube-scheduler
 
-echo "5、服务验证"
-echo "各个组件的监听端口:"
+echo "5、Service verification"
+echo "Listening port of each component:"
 netstat -ntlp
-echo "系统日志验证:"
+echo "System log verification:"
 journalctl -f
 
-echo "6、配置kubectl"
+echo "6、set kubectl"
 
-# 创建kubectl的配置目录
+#Create kubectl configuration directory
 mkdir /root/.kube/
-# 把管理员的配置文件移动到kubectl的默认目录
+# Move the administrator's configuration file to the default directory of kubectl
 mv /root/admin.kubeconfig /root/.kube/config
-# 测试
+# test
 kubectl get nodes
 
-# 在执行 kubectl exec、run、logs 等命令时，apiserver 会转发到 kubelet。这里定义 RBAC 规则，授权 apiserver 调用 kubelet API
+# When executing kubectl exec, run, logs and other commands, the apiserver will forward it to kubelet. Define RBAC rules here to authorize apiserver to call kubelet API
 kubectl create clusterrolebinding kube-apiserver:kubelet-apis --clusterrole=system:kubelet-api-admin --user kubernetes
 
 echo "remote success!"
