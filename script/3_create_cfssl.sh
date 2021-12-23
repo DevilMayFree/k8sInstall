@@ -250,7 +250,7 @@ EOF
 
 # Splicing node IP information
 ip_cluster=""
-all_ip_arr=(${master_ip_arr[@]} ${worker_ip_arr[@]} ${etcd_ip_arr[@]} ${internet_ip_arr[@]})
+all_ip_arr=(${master_ip_arr[@]} ${worker_ip_arr[@]} ${etcd_ip_arr[@]} )
 
 # De-duplication
 distinct_ip_arr=($(awk -v RS=' ' '!a[$1]++' <<< ${all_ip_arr[@]}))

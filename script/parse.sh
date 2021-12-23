@@ -28,12 +28,6 @@ etcd_name_arr=()
 # etcd_ip_arr
 etcd_ip_arr=()
 
-# internet_name_arr
-internet_name_arr=()
-
-# internet_ip_arr
-internet_ip_arr=()
-
 parse_info()
 {
     # parsing master info
@@ -69,14 +63,6 @@ parse_info()
         etcd_ip_arr+=( ${arr[1]} )
     done
 
-    # parsing internet info
-    for i in ${k8s_internet[*]}; do
-        str="${i}"
-        arr=(${str//=/ })
-        internet_name_arr+=( ${arr[0]} )
-        internet_ip_arr+=( ${arr[1]} )
-    done
-
     echo "Parse config.yml success!"
     echo ""
     echo "current k8s version: "${k8s_version}
@@ -93,9 +79,6 @@ parse_info()
     echo ${etcd_name_arr[*]}
     echo ${etcd_ip_arr[*]}
     echo ""
-    echo "internet info:"
-    echo ${internet_name_arr[*]}
-    echo ${internet_ip_arr[*]}
     echo "Parse config.yml end!"
     echo ""
 }
